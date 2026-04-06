@@ -14,7 +14,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    let user;
+    try {
+      user = await prisma.user.findUnique({ where: { email } });
+    } catch (dbError) {
+      console.error('Database connection error:', dbError);
+      return NextResponse.json(
+        { error: 'Database connection failed. Please try again later.' },
+        { status: 503 }
+      );
+    }
+
     if (!user) {
       return NextResponse.json(
         { error: 'Invalid credentials' },
@@ -30,7 +40,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = createToken(user.id);
+    const token = createToken(typeof user.id === 'string' ? parseInt(user.id) : user.id);
 
     return NextResponse.json({
       token,
@@ -39,7 +49,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Login failed' },
+      { error: 'Login failed: ' + (error instanceof Error ? error.message : 'Unknown error') },
       { status: 500 }
     );
   }
