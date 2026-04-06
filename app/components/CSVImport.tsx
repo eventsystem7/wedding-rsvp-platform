@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+// @ts-ignore
 import Papa from 'papaparse';
 
 interface Guest {
@@ -26,7 +27,7 @@ export const CSVImport: React.FC<CSVImportProps> = ({ onImport, isLoading }) => 
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      complete: (results) => {
+      complete: (results: any) => {
         const data = results.data as any[];
         const formattedGuests: Guest[] = data
           .filter((row) => row.name && row.phone)
@@ -44,7 +45,7 @@ export const CSVImport: React.FC<CSVImportProps> = ({ onImport, isLoading }) => 
         onImport(formattedGuests);
         e.target.value = ''; // Reset input
       },
-      error: (err) => {
+      error: (err: any) => {
         setError(`CSV Parse error: ${err.message}`);
       },
     });
