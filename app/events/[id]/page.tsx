@@ -1,9 +1,7 @@
 'use client';
 
-'use client';
-
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { CSVImport } from '@/app/components/CSVImport';
 import { StatsCard } from '@/app/components/StatsCard';
@@ -18,27 +16,40 @@ interface Guest {
   respondedAt?: string;
 }
 
-interface Stats {
-  total: number;
-  confirmed: number;
-  declined: number;
-  pending: number;
-}
-
 export default function EventPage() {
   const params = useParams();
   const eventId = params.id as string;
   const [guests, setGuests] = useState<Guest[]>([]);
-  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [showUploadForm, setShowUploadForm] = useState(false);
-  const [csvData, setCsvData] = useState('');
   const [isImporting, setIsImporting] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
-    fetchGuests();
+    async function fetchGuests() {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`/api/guests?eventId=${eventId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setGuests(data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch guests:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (eventId) {
+      fetchGuests();
+    }
   }, [eventId, refreshTrigger]);
 
   async function handleImport(guestsToAdd: any[]) {
@@ -95,25 +106,13 @@ export default function EventPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/dashboard" className="text-rose-600 hover:text-rose-700 font-medium">
-            ← Back to Events
-          </Link>
-          <h1 className="text-2xl font-bold text-rose-900">💍 Wedding RSVP</h1>
-          <div></div>
-        </div>
-      </nav>
-
-  return (
-    <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
           <Link href="/dashboard" className="text-rose-600 hover:text-rose-700 font-medium text-sm md:text-base">
             ← Back
           </Link>
           <h1 className="text-lg md:text-2xl font-bold text-rose-900">💍 Wedding RSVP</h1>
-          <div></div>
+          <div className="w-8 md:w-20"></div>
         </div>
       </nav>
 
@@ -157,12 +156,12 @@ export default function EventPage() {
                   <th className="px-3 md:px-6 py-3 text-left text-xs md:text-sm font-semibold text-gray-900">Replied</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-gray-200">
                 {guests.map((guest) => (
-                  <tr key={guest.id} className="border-t hover:bg-gray-50">
-                    <td className="px-3 md:px-6 py-3 text-xs md:text-sm text-gray-900 font-medium">{guest.name}</td>
-                    <td className="px-3 md:px-6 py-3 text-xs md:text-sm text-gray-600">{guest.phone}</td>
-                    <td className="px-3 md:px-6 py-3 text-xs md:text-sm">
+                  <tr key={guest.id} className="hover:bg-gray-50 transition">
+                    <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-900 font-medium">{guest.name}</td>
+                    <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-600">{guest.phone}</td>
+                    <td className="px-3 md:px-6 py-4 text-xs md:text-sm">
                       <span
                         className={`inline-block px-2 md:px-3 py-1 rounded-full text-xs font-medium ${
                           guest.status === 'confirmed'
@@ -175,21 +174,26 @@ export default function EventPage() {
                         {guest.status.charAt(0).toUpperCase() + guest.status.slice(1)}
                       </span>
                     </td>
-                    <td className="px-3 md:px-6 py-3 text-xs md:text-sm text-gray-600">
+                    <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-600">
                       {guest.sentAt ? '✓' : '-'}
                     </td>
-                    <td className="px-3 md:px-6 py-3 text-xs md:text-sm text-gray-600">
+                    <td className="px-3 md:px-6 py-4 text-xs md:text-sm text-gray-600">
                       {guest.respondedAt ? '✓' : '-'}
                     </td>
                   </tr>
                 ))}
+                {guests.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500 italic">
+                      No guests found. Start by uploading a CSV!
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-    </div>
-  );
     </div>
   );
 }
