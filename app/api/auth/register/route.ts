@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    const token = createToken(user.id);
+    const token = createToken(typeof user.id === 'string' ? parseInt(user.id) : user.id);
 
     return NextResponse.json(
       {
