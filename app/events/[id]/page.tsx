@@ -19,11 +19,14 @@ export default function EventPage() {
   const [isSending, setIsSending] = useState(false);
   const [manualName, setManualName] = useState('');
   const [manualPhone, setManualPhone] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     async function loadData() {
       try {
         const token = localStorage.getItem('token');
+        console.log('Token:', token ? 'Found' : 'Missing');
+        
         if (!token) {
           router.push('/login');
           return;
@@ -33,12 +36,20 @@ export default function EventPage() {
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        console.log('Guests fetch status:', res.status);
+        
         if (res.ok) {
           const data = await res.json();
+          console.log('Guests loaded:', data);
           setGuests(data.guests || []);
+        } else {
+          const errData = await res.json();
+          console.error('Guests error:', errData);
+          setError(`Failed to load guests: ${errData.error}`);
         }
       } catch (err) {
-        console.error(err);
+        console.error('Load error:', err);
+        setError(`Error: ${err}`);
       } finally {
         setLoading(false);
       }
@@ -49,7 +60,11 @@ export default function EventPage() {
   async function handleImport(guestsToAdd: any[]) {
     try {
       setIsImporting(true);
+      setError('');
+      
       const token = localStorage.getItem('token');
+      console.log('Adding guests:', guestsToAdd);
+      
       const res = await fetch('/api/guests', {
         method: 'POST',
         headers: {
@@ -59,23 +74,33 @@ export default function EventPage() {
         body: JSON.stringify({ eventId: parseInt(eventId), guests: guestsToAdd }),
       });
 
+      console.log('Add guests response:', res.status);
+      const data = await res.json();
+      console.log('Response data:', data);
+
       if (res.ok) {
+        alert(`✅ ${data.message}`);
         setShowUploadForm(false);
         setShowManualForm(false);
         setManualName('');
         setManualPhone('');
+        
         // Reload guests
         const guestRes = await fetch(`/api/guests?eventId=${eventId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (guestRes.ok) {
-          const data = await guestRes.json();
-          setGuests(data.guests || []);
+          const guestData = await guestRes.json();
+          setGuests(guestData.guests || []);
         }
+      } else {
+        setError(`❌ ${data.error}`);
+        alert(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error(error);
-      alert('Failed to add guests');
+      console.error('Import error:', error);
+      setError(`Error: ${error}`);
+      alert(`Failed to add guests: ${error}`);
     } finally {
       setIsImporting(false);
     }
@@ -83,6 +108,8 @@ export default function EventPage() {
 
   async function handleAddManual(e: React.FormEvent) {
     e.preventDefault();
+    console.log('Manual form submitted:', { manualName, manualPhone });
+    
     if (!manualName.trim() || !manualPhone.trim()) {
       alert('Please enter both name and phone');
       return;
@@ -160,6 +187,12 @@ export default function EventPage() {
       </nav>
 
       <div className="max-w-4xl mx-auto p-4">
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
+
         <StatsCard eventId={parseInt(eventId)} />
 
         <div className="grid grid-cols-3 gap-2 mb-6">
@@ -206,7 +239,7 @@ export default function EventPage() {
               />
               <input
                 type="tel"
-                placeholder="Phone Number"
+                placeholder="Phone Number (e.g., 0501234567)"
                 value={manualPhone}
                 onChange={(e) => setManualPhone(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500"
