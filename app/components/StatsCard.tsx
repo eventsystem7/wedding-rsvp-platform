@@ -30,8 +30,8 @@ export const StatsCard: React.FC<StatsCardProps> = ({ eventId, refreshTrigger = 
 
         if (!response.ok) throw new Error('Failed to fetch stats');
 
-        const { stats } = await response.json();
-        setStats(stats);
+        const data = await response.json();
+        setStats(data.stats);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -40,7 +40,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({ eventId, refreshTrigger = 
     };
 
     fetchStats();
-    const interval = setInterval(fetchStats, 5000); // Refresh every 5 seconds
+    const interval = setInterval(fetchStats, 5000);
 
     return () => clearInterval(interval);
   }, [eventId, refreshTrigger]);
