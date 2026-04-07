@@ -1,12 +1,5 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 body {
-  background: #fdf2f8; /* Pink light bg */
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
 }
