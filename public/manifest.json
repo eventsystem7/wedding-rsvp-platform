@@ -1,0 +1,42 @@
+{
+  "name": "Wedding RSVP",
+  "short_name": "RSVP",
+  "description": "Manage your wedding RSVPs with WhatsApp integration",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ec4899",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23ec4899' width='192' height='192'/><text x='50%' y='50%' font-size='120' fill='white' text-anchor='middle' dy='.3em'>💍</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["productivity"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23fdf2f8' width='540' height='720'/><rect fill='%23ec4899' width='540' height='80'/><text x='270' y='50' font-size='40' fill='white' text-anchor='middle' dy='.3em'>💍 Wedding RSVP</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Event",
+      "short_name": "Event",
+      "description": "Create a new wedding event",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect fill='%23ec4899' width='96' height='96'/><text x='48' y='48' font-size='60' fill='white' text-anchor='middle' dy='.3em'>💍</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
