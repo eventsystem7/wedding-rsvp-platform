@@ -14,8 +14,11 @@ export default function EventPage() {
   const [guests, setGuests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showUploadForm, setShowUploadForm] = useState(false);
+  const [showManualForm, setShowManualForm] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [manualName, setManualName] = useState('');
+  const [manualPhone, setManualPhone] = useState('');
 
   useEffect(() => {
     async function loadData() {
@@ -58,6 +61,9 @@ export default function EventPage() {
 
       if (res.ok) {
         setShowUploadForm(false);
+        setShowManualForm(false);
+        setManualName('');
+        setManualPhone('');
         // Reload guests
         const guestRes = await fetch(`/api/guests?eventId=${eventId}`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -69,16 +75,30 @@ export default function EventPage() {
       }
     } catch (error) {
       console.error(error);
+      alert('Failed to add guests');
     } finally {
       setIsImporting(false);
     }
+  }
+
+  async function handleAddManual(e: React.FormEvent) {
+    e.preventDefault();
+    if (!manualName.trim() || !manualPhone.trim()) {
+      alert('Please enter both name and phone');
+      return;
+    }
+    
+    handleImport([{
+      name: manualName.trim(),
+      phone: manualPhone.replace(/\D/g, '')
+    }]);
   }
 
   async function handleContactPicker() {
     try {
       const nav = navigator as any;
       if (!('contacts' in nav && 'select' in nav.contacts)) {
-        alert('Contact picker is not supported on this device/browser.');
+        alert('Contact picker is only supported on mobile devices. Use "Add Manually" instead.');
         return;
       }
 
@@ -142,26 +162,63 @@ export default function EventPage() {
       <div className="max-w-4xl mx-auto p-4">
         <StatsCard eventId={parseInt(eventId)} />
 
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-2 mb-6">
           <button 
             onClick={() => setShowUploadForm(!showUploadForm)}
-            className="bg-white text-rose-600 py-3 rounded-2xl font-bold shadow-md border-2 border-rose-100 flex flex-col items-center justify-center hover:bg-rose-50 active:scale-95 transition"
+            className="bg-white text-rose-600 py-3 rounded-2xl font-bold shadow-md border-2 border-rose-100 flex flex-col items-center justify-center hover:bg-rose-50 active:scale-95 transition text-xs"
           >
             <span className="text-xl">📄</span>
             <span className="text-xs mt-1">Upload CSV</span>
           </button>
           <button 
             onClick={handleContactPicker}
-            className="bg-rose-600 text-white py-3 rounded-2xl font-bold shadow-lg flex flex-col items-center justify-center active:scale-95 transition hover:bg-rose-700"
+            className="bg-rose-600 text-white py-3 rounded-2xl font-bold shadow-lg flex flex-col items-center justify-center active:scale-95 transition hover:bg-rose-700 text-xs"
           >
             <span className="text-xl">📱</span>
-            <span className="text-xs mt-1">Add from Phone</span>
+            <span className="text-xs mt-1">Phone*</span>
+          </button>
+          <button 
+            onClick={() => setShowManualForm(!showManualForm)}
+            className="bg-white text-rose-600 py-3 rounded-2xl font-bold shadow-md border-2 border-rose-100 flex flex-col items-center justify-center hover:bg-rose-50 active:scale-95 transition text-xs"
+          >
+            <span className="text-xl">✏️</span>
+            <span className="text-xs mt-1">Manual</span>
           </button>
         </div>
 
         {showUploadForm && (
           <div className="mb-6 bg-white p-4 rounded-xl shadow-inner border-l-4 border-rose-600">
+            <h3 className="font-bold mb-3 text-rose-900">Upload CSV File</h3>
             <CSVImport onImport={handleImport} isLoading={isImporting} />
+          </div>
+        )}
+
+        {showManualForm && (
+          <div className="mb-6 bg-white p-4 rounded-xl shadow-inner border-l-4 border-rose-600">
+            <h3 className="font-bold mb-3 text-rose-900">Add Guest Manually</h3>
+            <form onSubmit={handleAddManual} className="space-y-3">
+              <input
+                type="text"
+                placeholder="Guest Name"
+                value={manualName}
+                onChange={(e) => setManualName(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500"
+              />
+              <input
+                type="tel"
+                placeholder="Phone Number"
+                value={manualPhone}
+                onChange={(e) => setManualPhone(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500"
+              />
+              <button
+                type="submit"
+                disabled={isImporting}
+                className="w-full bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-lg font-bold disabled:opacity-50"
+              >
+                {isImporting ? 'Adding...' : 'Add Guest'}
+              </button>
+            </form>
           </div>
         )}
 
@@ -185,16 +242,16 @@ export default function EventPage() {
           <table className="w-full text-left">
             <thead className="bg-rose-50 border-b border-rose-200">
               <tr>
-                <th className="p-4 text-rose-900 font-bold">Name</th>
-                <th className="p-4 text-rose-900 font-bold">Phone</th>
-                <th className="p-4 text-rose-900 font-bold">Status</th>
+                <th className="p-4 text-rose-900 font-bold text-sm">Name</th>
+                <th className="p-4 text-rose-900 font-bold text-sm">Phone</th>
+                <th className="p-4 text-rose-900 font-bold text-sm">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-rose-50">
               {guests.map((g: any) => (
                 <tr key={g.id} className="hover:bg-rose-50 transition">
-                  <td className="p-4 font-medium">{g.name}</td>
-                  <td className="p-4 text-gray-600">{g.phone}</td>
+                  <td className="p-4 font-medium text-sm">{g.name}</td>
+                  <td className="p-4 text-gray-600 text-sm">{g.phone}</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                       g.status === 'confirmed' ? 'bg-green-100 text-green-700' : 
