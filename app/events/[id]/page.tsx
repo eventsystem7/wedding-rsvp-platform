@@ -76,8 +76,8 @@ export default function EventPage() {
 
   async function handleContactPicker() {
     try {
-      // Check if the browser supports Contact Picker API
-      if (!('contacts' in navigator && 'select' in navigator.contacts)) {
+      const nav = navigator as any;
+      if (!('contacts' in nav && 'select' in nav.contacts)) {
         alert('Contact picker is not supported on this device/browser.');
         return;
       }
@@ -85,14 +85,14 @@ export default function EventPage() {
       const props = ['name', 'tel'];
       const opts = { multiple: true };
       
-      // @ts-ignore
-      const contacts = await navigator.contacts.select(props, opts);
+      const contacts = await nav.contacts.select(props, opts);
       
-      if (contacts.length > 0) {
+      if (contacts && contacts.length > 0) {
         const formatted = contacts.map((c: any) => ({
-          name: c.name[0],
-          phone: c.tel[0].replace(/\D/g, '') // Clean phone number
-        }));
+          name: c.name?.[0] || 'Unknown',
+          phone: c.tel?.[0]?.replace(/\D/g, '') || ''
+        })).filter((c: any) => c.phone);
+        
         handleImport(formatted);
       }
     } catch (err) {

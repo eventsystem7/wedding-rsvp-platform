@@ -1,32 +1,70 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// Handle RSVP from WhatsApp (no auth needed)
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const { guestId, status } = await req.json();
+    const { searchParams } = new URL(req.url);
+    const eventId = searchParams.get('eventId');
+    const phone = searchParams.get('phone');
 
-    if (!guestId || !['confirmed', 'declined'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid request' },
-        { status: 400 }
-      );
+    if (!eventId || !phone) {
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
 
-    const guest = await prisma.guest.update({
-      where: { id: parseInt(guestId) },
+    const event = await prisma.event.findUnique({
+      where: { id: parseInt(eventId) },
+    });
+
+    if (!event) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 });
+    }
+
+    const guest = await prisma.guest.findFirst({
+      where: { eventId: parseInt(eventId), phone },
+    });
+
+    return NextResponse.json({
+      event,
+      guestStatus: guest?.status || 'pending',
+    });
+  } catch (error) {
+    console.error('RSVP GET error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { eventId, phone, status } = await req.json();
+
+    if (!eventId || !phone || !status) {
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
+    }
+
+    // Find the guest
+    const guest = await prisma.guest.findFirst({
+      where: { eventId: parseInt(eventId), phone },
+    });
+
+    if (!guest) {
+      return NextResponse.json({ error: 'Guest not found' }, { status: 404 });
+    }
+
+    // Update guest status
+    const updated = await prisma.guest.update({
+      where: { id: guest.id },
       data: {
         status,
         respondedAt: new Date(),
       },
     });
 
-    return NextResponse.json(guest);
+    return NextResponse.json({
+      message: 'RSVP recorded',
+      guest: updated,
+    });
   } catch (error) {
-    console.error('RSVP error:', error);
-    return NextResponse.json(
-      { error: 'Failed to update RSVP' },
-      { status: 500 }
-    );
+    console.error('RSVP POST error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
