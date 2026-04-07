@@ -1,27 +1,12 @@
 @import "tailwindcss";
 
-@theme {
-  --color-rose-50: #fff1f2;
-  --color-rose-100: #ffe4e6;
-  --color-rose-200: #fecdd3;
-  --color-rose-500: #f43f5e;
-  --color-rose-600: #e11d48;
-  --color-rose-700: #be123c;
-  --color-rose-900: #881337;
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
-@layer base {
-  body {
-    @apply bg-slate-50 text-slate-900 antialiased;
-  }
-}
-
-@layer components {
-  .luxury-card {
-    @apply bg-white rounded-2xl shadow-xl border border-rose-100 p-6 transition-all hover:shadow-2xl hover:-translate-y-1;
-  }
-  
-  .luxury-button {
-    @apply bg-gradient-to-r from-rose-600 to-pink-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:from-rose-700 hover:to-pink-700 active:scale-95 transition-all;
-  }
+body {
+  background: #fdf2f8; /* Pink light bg */
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }
