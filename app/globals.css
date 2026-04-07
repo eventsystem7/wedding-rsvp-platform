@@ -1,5 +1,5 @@
 @import "tailwindcss";
 
 body {
-  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+  @apply bg-pink-50;
 }
