@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+// Fixed for Next.js 16 - params is now a Promise
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
