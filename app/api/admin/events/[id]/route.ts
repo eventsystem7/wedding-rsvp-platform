@@ -30,7 +30,12 @@ export async function GET(
     }
 
     // Await the params promise
-    const { id: eventId } = await params;
+    const { id: eventIdStr } = await params;
+    const eventId = parseInt(eventIdStr, 10);
+
+    if (isNaN(eventId)) {
+      return NextResponse.json({ error: 'Invalid event ID' }, { status: 400 });
+    }
 
     // Fetch specific event with guests
     const event = await prisma.event.findUnique({

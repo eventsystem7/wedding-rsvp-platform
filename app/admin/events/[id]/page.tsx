@@ -5,14 +5,14 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 
 interface Guest {
-  id: string;
+  id: number;
   name: string;
   phone: string;
-  status: 'pending' | 'confirmed' | 'declined';
+  status: string;
 }
 
 interface EventDetail {
-  id: string;
+  id: number;
   groomName: string;
   brideName: string;
   eventDate: string;
