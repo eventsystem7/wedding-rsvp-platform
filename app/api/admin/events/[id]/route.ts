@@ -7,7 +7,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = req.headers.get('authorization');
@@ -29,7 +29,8 @@ export async function GET(
       }
     }
 
-    const eventId = params.id;
+    // Await the params promise
+    const { id: eventId } = await params;
 
     // Fetch specific event with guests
     const event = await prisma.event.findUnique({
