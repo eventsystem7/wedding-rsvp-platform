@@ -11,7 +11,7 @@ export default function Home() {
           <p className="text-lg md:text-xl text-rose-700">Manage your wedding with ease</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-4 md:gap-8">
+        <div className="grid md:grid-cols-3 gap-4 md:gap-8">
           <Link href="/login">
             <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 hover:shadow-xl transition cursor-pointer active:scale-95">
               <h2 className="text-xl md:text-2xl font-bold text-rose-900 mb-2 md:mb-4">👤 Login</h2>
@@ -23,6 +23,13 @@ export default function Home() {
             <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 hover:shadow-xl transition cursor-pointer active:scale-95">
               <h2 className="text-xl md:text-2xl font-bold text-rose-900 mb-2 md:mb-4">✍️ Register</h2>
               <p className="text-sm md:text-base text-gray-600">Create a new account to get started</p>
+            </div>
+          </Link>
+
+          <Link href="/admin/login">
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 md:p-8 hover:shadow-xl transition cursor-pointer active:scale-95">
+              <h2 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-4">🔐 Administrator</h2>
+              <p className="text-sm md:text-base text-purple-100">Admin access only</p>
             </div>
           </Link>
         </div>
