@@ -49,8 +49,7 @@ export default function AdminPage() {
 
         if (res.ok) {
           const data = await res.json();
-          setEvents(data);
-        }
+          setEvents(data.events || []);        }
       } catch (error) {
         console.error('Failed to fetch:', error);
       } finally {
