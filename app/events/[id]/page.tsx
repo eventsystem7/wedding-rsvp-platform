@@ -77,7 +77,8 @@ export default function EventPage() {
       console.log('Add guests response:', res.status);
       const data = await res.json();
       console.log('Response data:', data);
-
+console.log('data.guests:', data.guests);
+console.log('guests state before:', guests); 
 if (res.ok) {
  alert(`✅ ${data.message}`);
  setShowUploadForm(false);
