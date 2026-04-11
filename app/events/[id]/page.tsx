@@ -78,25 +78,30 @@ export default function EventPage() {
       const data = await res.json();
       console.log('Response data:', data);
 
-      if (res.ok) {
-        alert(`✅ ${data.message}`);
-        setShowUploadForm(false);
-        setShowManualForm(false);
-        setManualName('');
-        setManualPhone('');
-        
-        // Reload guests
-        const guestRes = await fetch(`/api/guests?eventId=${eventId}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (guestRes.ok) {
-          const guestData = await guestRes.json();
-          setGuests(guestData.guests || []);
-        }
-      } else {
-        setError(`❌ ${data.error}`);
-        alert(`Error: ${data.error}`);
-      }
+if (res.ok) {
+ alert(`✅ ${data.message}`);
+ setShowUploadForm(false);
+ setShowManualForm(false);
+ setManualName('');
+ setManualPhone('');
+ 
+ // Update guests immediately with the response data
+ if (data.guests) {
+ setGuests([...guests, ...data.guests]);
+ } else {
+ // Fallback: Reload guests
+ const guestRes = await fetch(`/api/guests?eventId=${eventId}`, {
+ headers: { Authorization: `Bearer ${token}` }
+ });
+ if (guestRes.ok) {
+ const guestData = await guestRes.json();
+ setGuests(guestData.guests || []);
+ }
+ }
+ } else {
+ setError(`❌ ${data.error}`);
+ alert(`Error: ${data.error}`);
+ }
     } catch (error) {
       console.error('Import error:', error);
       setError(`Error: ${error}`);
