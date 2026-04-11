@@ -8,47 +8,69 @@ generator client {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
   password  String
   name      String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   events    Event[]
+  vendors   Vendor[]
+}
+
+model Vendor {
+  id            Int          @id @default(autoincrement())
+  userId        Int
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  category      String
+  phone         String
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  eventVendors  EventVendor[]
 }
 
 model Event {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  groomName String
-  brideName String
-  eventDate DateTime
-  eventLocation String
-  
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  guests    Guest[]
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  groomName       String
+  brideName       String
+  eventDate       DateTime
+  eventLocation   String
+  eventType       String        @default("wedding")
+  eventImage      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  guests          Guest[]
+  eventVendors    EventVendor[]
+}
+
+model EventVendor {
+  id        Int      @id @default(autoincrement())
+  eventId   Int
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  vendorId  Int
+  vendor    Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([eventId, vendorId])
 }
 
 model Guest {
-  id        Int       @id @default(autoincrement())
-  eventId   Int
-  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  
-  name      String
-  phone     String
-  email     String?
-  
-  status    String    @default("pending") // pending, confirmed, declined
-  sentAt    DateTime?
+  id          Int      @id @default(autoincrement())
+  eventId     Int
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name        String
+  phone       String
+  email       String?
+  status      String   @default("pending")
+  sentAt      DateTime?
   respondedAt DateTime?
-  
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   @@index([eventId])
   @@index([phone])
 }
