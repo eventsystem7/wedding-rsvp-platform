@@ -47,8 +47,7 @@ export default function DashboardPage() {
       }
 
       const data = await res.json();
-      setEvents(data);
-    } catch (error) {
+    setEvents(Array.isArray(data) ? data : []);    } catch (error) {
       console.error('Failed to fetch events:', error);
     } finally {
       setLoading(false);
